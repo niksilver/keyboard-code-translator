@@ -16,18 +16,18 @@ k8 = {
   },
   -- Key codes from the keyboard we want to override
   overrides = {
-    [224] = 'F1'
-    [225] = 'F2'
-    [120] = 'F3'
-    [204] = 'F4'
-    [229] = 'F5'
-    [230] = 'F6'
-    [165] = 'F7'
-    [164] = 'F8'
-    [163] = 'F9'
-    [113] = 'F10'
-    [114] = 'F11'
-    [115] = 'F12'
+    [224] = 'F1',
+    [225] = 'F2',
+    [120] = 'F3',
+    [204] = 'F4',
+    [229] = 'F5',
+    [230] = 'F6',
+    [165] = 'F7',
+    [164] = 'F8',
+    [163] = 'F9',
+    [113] = 'F10',
+    [114] = 'F11',
+    [115] = 'F12',
   }
 }
 
@@ -53,7 +53,6 @@ mod.hook.register("system_post_startup", "Keychron K8 post", function()
     -- `lua/core/keyboard.lua`.
 
     k8.revcodes = tab.invert(keyboard.codes)
-    i114] = 'F11'
   else
     print("No keyboard.codes")
   end
