@@ -3,27 +3,26 @@
 --
 
 local mod = require 'core/mods'
+local tab = require 'tabutil'
 
 --- Our local state
 --
-k8 = {}
+k8 = {
+  -- Key codes from the keyboard we want to override
+  overrides = {
+    [204] = 'F4'
+  }
+}
 
---
--- [optional] hooks are essentially callbacks which can be used by multiple mods
--- at the same time. each function registered with a hook must also include a
--- name. registering a new function with the name of an existing function will
--- replace the existing function. using descriptive names (which include the
--- name of the mod itself) can help debugging because the name of a callback
--- function will be printed out by matron (making it visible in maiden) before
--- the callback function is called.
---
--- here we have dummy functionality to help confirm things are getting called
--- and test out access to mod level state via mod supplied fuctions.
+-- After startup we want to wrap the norns' keyboard function that
+-- processes keystrokes.
 --
 
 mod.hook.register("system_post_startup", "Keychron K8 post", function()
   if keyboard.process then
-    print("We've found keyboard.process")
+    -- We've found the function we want to wrap,
+    -- but let's not replace it twice.
+
     if k8.original_keyboard_process == nil then
       k8.original_keyboard_process = keyboard.process
       keyboard.process = mod_keyboard_process
@@ -31,20 +30,30 @@ mod.hook.register("system_post_startup", "Keychron K8 post", function()
   else
     print("No keyboard.process")
   end
-end)
-print("Hello from mod.lua")
 
-mod.hook.register("script_pre_init", "my init hacks", function()
-  -- tweak global environment here ahead of the script `init()` function being called
+  if keyboard.codes then
+    -- Create a map from key names to key codes. This is from
+    -- `lua/core/keyboard.lua`.
+
+    k8.revcodes = tab.invert(keyboard.codes)
+  else
+    print("No keyboard.codes")
+  end
+
+
 end)
 
 -- Our own version of keyboard.process, which just wraps the original.
 --
 function mod_keyboard_process(type, code, value)
   print(type, code, value)
+  if code ~= nil then
+    local want_name = k8.overrides[code]
+    local want_code = want_name and k8.revcodes[want_name]
+    print(want_name, want_code)
+  end
   k8.original_keyboard_process(type, code, value)
 end
-
 
 --
 -- [optional] menu: extending the menu system is done by creating a table with
