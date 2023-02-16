@@ -8,6 +8,12 @@ local tab = require 'tabutil'
 --- Our local state
 --
 k8 = {
+  original_keyboard_process = nil,    -- Original function
+  revcodes = {},    -- Map from key name to key code
+  menu = {
+    is_in = false,    -- Whether we're in the menu
+    values = {},    -- Type, code, value, (possibly) name, new code
+  },
   -- Key codes from the keyboard we want to override
   overrides = {
     [204] = 'F4'
@@ -43,16 +49,30 @@ mod.hook.register("system_post_startup", "Keychron K8 post", function()
 
 end)
 
--- Our own version of keyboard.process, which just wraps the original.
+-- Our own version of keyboard.process.
+-- We make a possible translation, and pass this into the original
+-- function if we're not in the mod menu.
 --
 function mod_keyboard_process(type, code, value)
   print(type, code, value)
+  k8.menu.values = {type, code, value, nil, nil}
   if code ~= nil then
     local want_name = k8.overrides[code]
-    local want_code = want_name and k8.revcodes[want_name]
-    print(want_name, want_code)
+    code = want_name and k8.revcodes[want_name] or code
+    k8.menu.values[4] = want_name
+    k8.menu.values[5] = code
+    print(want_name, code)
   end
-  k8.original_keyboard_process(type, code, value)
+
+  if k8.menu.is_in then
+    print("Redrawing with " .. tostring(mod_redraw))
+    mod_redraw()
+    print("Redrawn")
+  else
+    print("Entering " .. tostring(k8.original_keyboard_process))
+    k8.original_keyboard_process(type, code, value)
+    print("Entered")
+  end
 end
 
 --
@@ -70,15 +90,59 @@ end
 
 m.enc = function(n, d) end
 
-m.redraw = function()
+-- Show what might be sent to keyboard.process()
+--
+function mod_redraw()
+  print("In redraw() 1")
+  for i = 1, 5 do
+    print("[" .. i .. "] = " .. tostring(k8.menu.values[i]))
+  end
   screen.clear()
-  screen.move(0, 40)
-  screen.text("found k.p? " .. tostring(k8.original_keyboard_process))
+  screen.move(0, 8); screen.text("Last keyboard message")
+  screen.move(0, 16); screen.text("(type, code, value)")
+  screen.move(0, 24); screen.text("and any translation:")
+  print("In redraw() 2")
+
+  local trans = ""
+  if k8.menu.values[4] then
+    trans =
+      "-> " .. tostring(k8.menu.values[5]) ..
+      " (" .. tostring(k8.menu.values[4]) ..
+      ")"
+  end
+  print("In redraw() 3")
+
+  screen.move(0, 36); screen.text(
+    "(" .. tostring(k8.menu.values[1]) ..
+    ", " .. tostring(k8.menu.values[2]) ..
+    ", " .. tostring(k8.menu.values[3]) ..
+    ") " .. trans )
+  print("In redraw() 4")
+
+  print(
+    "(" .. tostring(k8.menu.values[1]) ..
+    ", " .. tostring(k8.menu.values[2]) ..
+    ", " .. tostring(k8.menu.values[3]) ..
+    ") " .. trans )
+
+  print("In redraw() 5")
   screen.update()
+  print("In redraw() 6")
 end
 
-m.init = function() end -- on menu entry, ie, if you wanted to start timers
-m.deinit = function() end -- on menu exit
+m.redraw = mod_redraw
+
+-- Called on menu entry.
+--
+m.init = function()
+  k8.menu.is_in = true
+end
+
+-- Called on menu exit.
+--
+m.deinit = function()
+  k8.menu.is_in = false
+end
 
 -- register the mod menu
 --
