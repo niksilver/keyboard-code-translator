@@ -103,12 +103,12 @@ function mod_redraw()
   screen.clear()
   screen.move(0, 8); screen.text("Last keyboard message")
   screen.move(0, 16); screen.text("(type, code, value)")
-  screen.move(0, 24); screen.text("and any translation:")
+  screen.move(0, 24); screen.text("and any code translation:")
 
   local trans = ""
   if k8.menu.values[4] then
     trans =
-      "-> " .. tostring(k8.menu.values[5]) ..
+      " -> " .. tostring(k8.menu.values[5]) ..
       " (" .. tostring(k8.menu.values[4]) ..
       ")"
   end
@@ -116,8 +116,9 @@ function mod_redraw()
   screen.move(0, 36); screen.text(
     "(" .. tostring(k8.menu.values[1]) ..
     ", " .. tostring(k8.menu.values[2]) ..
+    trans ..
     ", " .. tostring(k8.menu.values[3]) ..
-    ") " .. trans )
+    ")" )
   screen.move(0, 60); screen.text("K2 to exit")
 
   screen.update()
