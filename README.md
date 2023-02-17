@@ -34,7 +34,7 @@ To find what key codes your keyboard generates go to the mod's menu in
 `SYSTEM > MODS`. When you press a key that will show the code generated,
 plus any translation that the mod currently does. It will also show the
 key state. It is presented like the input to
-(the `keyboard.code()` function)[https://monome.org/docs/norns/api/modules/keyboard.html#code].
+[the `keyboard.code()` function](https://monome.org/docs/norns/api/modules/keyboard.html#code).
 
 Note that the key code displayed on this screen is the code as it
 comes from the keyboard, before any country-specific mapping.
