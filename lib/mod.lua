@@ -12,7 +12,7 @@ k8 = {
   revcodes = {},    -- Map from key name to key code
   menu = {
     is_in = false,    -- Whether we're in the menu
-    values = {},    -- Type, code, value, (possibly) name, new code
+    values = {},    -- Type, code, value, (possibly) name, new name, new code
   },
   -- Key codes from the keyboard we want to override
   overrides = {
@@ -65,12 +65,16 @@ end)
 -- function if we're not in the mod menu.
 --
 function mod_keyboard_process(type, code, value)
-  k8.menu.values = {type, code, value, nil, nil}
+  k8.menu.values = {type, code, value, nil, nil, nil}
   if code ~= nil then
+    local name = keyboard.codes[code]
+    k8.menu.values[4] = name
+
     local want_name = k8.overrides[code]
+    k8.menu.values[5] = want_name
+
     code = want_name and k8.revcodes[want_name] or code
-    k8.menu.values[4] = want_name
-    k8.menu.values[5] = code
+    k8.menu.values[6] = code
   end
 
   if k8.menu.is_in then
@@ -105,18 +109,22 @@ function mod_redraw()
   screen.move(0, 16); screen.text("(type, code, value)")
   screen.move(0, 24); screen.text("and any code translation:")
 
-  local trans = ""
+  local name = ""
   if k8.menu.values[4] then
-    trans =
-      " -> " .. tostring(k8.menu.values[5]) ..
-      " (" .. tostring(k8.menu.values[4]) ..
-      ")"
+    name = " (" .. tostring(k8.menu.values[4]) .. ")"
+  end
+
+  local trans = ""
+  if k8.menu.values[5] then
+      trans = " -> " .. tostring(k8.menu.values[6]) ..
+      " (" .. tostring(k8.menu.values[5]) .. ")"
+      name = ""
   end
 
   screen.move(0, 36); screen.text(
     "(" .. tostring(k8.menu.values[1]) ..
     ", " .. tostring(k8.menu.values[2]) ..
-    trans ..
+    name .. trans ..
     ", " .. tostring(k8.menu.values[3]) ..
     ")" )
   screen.move(0, 60); screen.text("K2 to exit")
