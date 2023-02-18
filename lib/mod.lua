@@ -11,7 +11,7 @@ local tab = require 'tabutil'
 
 --- Our local state
 --
-state = {
+local state = {
   original_keyboard_process = nil,    -- Original function
   revcodes = {},    -- Map from key name to key code
   menu = {
@@ -44,7 +44,7 @@ state = {
 -- processes keystrokes.
 --
 
-mod.hook.register("system_post_startup", "Keychron K8 post", function()
+mod.hook.register("system_post_startup", "Keyboard code translator post", function()
   if keyboard.process then
     -- We've found the function we want to wrap,
     -- but let's not replace it twice.
